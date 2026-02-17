@@ -15,7 +15,6 @@ import java.util.Objects;
 @RequiredArgsConstructor
 @Builder
 @AllArgsConstructor
-@NoArgsConstructor
 public class ChatEntry {
 
     @Id
@@ -29,6 +28,11 @@ public class ChatEntry {
 
     @CreationTimestamp
     private LocalDateTime createdAt;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "chat_id")
+    @ToString.Exclude
+    private Chat chat;
 
     @Override
     public final boolean equals(Object o) {

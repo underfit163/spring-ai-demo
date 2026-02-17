@@ -17,7 +17,6 @@ import java.util.Objects;
 @RequiredArgsConstructor
 @Builder
 @AllArgsConstructor
-@NoArgsConstructor
 public class Chat {
 
     @Id
@@ -29,9 +28,7 @@ public class Chat {
     @CreationTimestamp
     private LocalDateTime createdAt;
 
-
-    @OneToMany(fetch = FetchType.EAGER, cascade = CascadeType.ALL,orphanRemoval = true)
-    @JoinColumn(name = "chat_id")
+    @OneToMany(fetch = FetchType.EAGER, mappedBy = "chat", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<ChatEntry> history = new ArrayList<>();
 
     public void addChatEntry(ChatEntry entry) {
