@@ -33,6 +33,7 @@ public class Chat {
 
     public void addChatEntry(ChatEntry entry) {
         history.add(entry);
+        entry.setChat(this);
     }
 
     @Override

@@ -52,8 +52,8 @@
         <div class="messages" id="messages">
             <th:block th:if="${chat != null}">
                 <div th:if="${!#lists.isEmpty(chat.history)}" th:each="entry : ${chat.history}"
-                     th:class="${entry.role.name == 'user'} ? 'message user' : 'message mentor'"><img
-                        th:src="${entry.role.name == 'user'} ? '/images/user.png' : '/images/mentor.png'" alt="avatar">
+                     th:class="${entry.role.name == 'USER'} ? 'message user' : 'message mentor'"><img
+                        th:src="${entry.role.name == 'USER'} ? '/images/user.png' : '/images/mentor.png'" alt="avatar">
                     <div class="bubble" th:text="${entry.content}"></div>
                 </div>
             </th:block>

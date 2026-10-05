@@ -7,6 +7,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import ru.t1.springaidemo.facade.ChatFacade;
 import ru.t1.springaidemo.model.Chat;
 import ru.t1.springaidemo.service.ChatService;
 
@@ -15,17 +16,19 @@ import ru.t1.springaidemo.service.ChatService;
 public class ChatController {
 
     private final ChatService chatService;
+    private final ChatFacade chatFacade;
 
     @GetMapping("/")
     public String mainPage(ModelMap model) {
         model.addAttribute("chats", chatService.getAllChats());
+
         return "chat";
     }
 
     @GetMapping("/chat/{chatId}")
     public String showChat(@PathVariable Long chatId, ModelMap model) {
         model.addAttribute("chats", chatService.getAllChats());
-        model.addAttribute("chatId", chatService.getChat(chatId));
+        model.addAttribute("chat", chatService.getChat(chatId));
 
         return "chat";
     }
@@ -42,6 +45,13 @@ public class ChatController {
         chatService.deleteChat(chatId);
 
         return "redirect:/";
+    }
+
+    @PostMapping("/chat/{chatId}/entry")
+    public String talkToModel(@PathVariable Long chatId, @RequestParam String prompt) {
+        chatFacade.proceedInteraction(chatId, prompt);
+
+        return "redirect:/chat/" + chatId;
     }
 
 }
