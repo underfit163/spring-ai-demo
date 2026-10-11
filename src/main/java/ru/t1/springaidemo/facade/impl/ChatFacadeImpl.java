@@ -3,14 +3,13 @@ package ru.t1.springaidemo.facade.impl;
 import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
 import org.springframework.ai.chat.client.ChatClient;
-import org.springframework.ai.chat.client.advisor.MessageChatMemoryAdvisor;
+import org.springframework.ai.chat.memory.ChatMemory;
 import org.springframework.ai.chat.messages.AssistantMessage;
 import org.springframework.ai.chat.model.ChatResponse;
 import org.springframework.stereotype.Component;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 import ru.t1.springaidemo.facade.ChatFacade;
 import ru.t1.springaidemo.model.Role;
-import ru.t1.springaidemo.service.PostgresChatMemory;
 import ru.t1.springaidemo.service.ChatService;
 
 @RequiredArgsConstructor
@@ -19,7 +18,6 @@ public class ChatFacadeImpl implements ChatFacade {
 
     private final ChatService chatService;
     private final ChatClient chatClient;
-    private final PostgresChatMemory postgresChatMemory;
 
     @Override
     public void proceedInteraction(Long chatId, String prompt) {
@@ -36,9 +34,7 @@ public class ChatFacadeImpl implements ChatFacade {
 
         StringBuilder answer = new StringBuilder();
         chatClient.prompt(prompt)
-                .advisors(MessageChatMemoryAdvisor.builder(postgresChatMemory)
-                        .conversationId(String.valueOf(chatId))
-                        .build()) // менеджерит наши запросы\ответы в бд, дополняем информацию перед промптом и сохраняет ответ
+                .advisors(advisorSpec -> advisorSpec.param(ChatMemory.CONVERSATION_ID, chatId)) // менеджерит наши запросы\ответы в бд, дополняем информацию перед промптом и сохраняет ответ, понимает какой чат id использовать
                 .stream()
                 .chatResponse()
                 .subscribe(response -> processToken(response, sseEmitter, answer),
