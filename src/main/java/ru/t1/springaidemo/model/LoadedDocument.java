@@ -18,7 +18,6 @@ import java.util.Objects;
 @RequiredArgsConstructor
 @Builder
 @AllArgsConstructor
-@NoArgsConstructor
 public class LoadedDocument {
 
     @Id
