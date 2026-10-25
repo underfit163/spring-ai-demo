@@ -1,0 +1,87 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+        https://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.20.xsd">
+
+    <!-- Расширение PostgreSQL для работы с векторами -->
+    <changeSet id="003" author="163ty">
+        <sql>CREATE EXTENSION IF NOT EXISTS vector;</sql>
+    </changeSet>
+
+    <!-- Таблица загруженных документов -->
+    <changeSet id="004" author="163ty">
+        <createTable tableName="loaded_document" schemaName="public">
+            <column name="id" type="SERIAL">
+                <constraints primaryKey="true"
+                             primaryKeyName="pk_loaded_document"
+                             nullable="false"/>
+            </column>
+            <column name="filename" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="content_hash" type="VARCHAR(64)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="document_type" type="VARCHAR(10)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="chunk_count" type="INTEGER"/>
+            <column name="loaded_at" type="TIMESTAMP"
+                    defaultValueComputed="CURRENT_TIMESTAMP">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+
+        <addUniqueConstraint
+                tableName="loaded_document"
+                schemaName="public"
+                columnNames="filename, content_hash"
+                constraintName="unique_document"/>
+    </changeSet>
+
+    <!-- Индекс для поиска документов по имени файла -->
+    <changeSet id="005" author="163ty">
+        <createIndex indexName="idx_loaded_documents_filename"
+                     tableName="loaded_document"
+                     schemaName="public">
+            <column name="filename"/>
+        </createIndex>
+    </changeSet>
+
+    <!-- Таблица векторного хранилища -->
+    <changeSet id="006" author="163ty">
+        <createTable tableName="vector_store" schemaName="public">
+            <column name="id" type="VARCHAR(255)">
+                <constraints primaryKey="true"
+                             primaryKeyName="pk_vector_store"
+                             nullable="false"/>
+            </column>
+            <column name="content" type="TEXT"/>
+            <column name="metadata" type="JSON"/>
+        </createTable>
+
+        <!-- VECTOR(1024) — тип pgvector; создаётся через SQL -->
+        <sql>
+            ALTER TABLE public.vector_store
+            ADD COLUMN embedding VECTOR(1024);
+        </sql>
+    </changeSet>
+
+<!--    =============================================-->
+<!--    Комментарии по типам индексов:-->
+<!--    =============================================-->
+<!--    HNSW (Hierarchical Navigable Small World) - эффективный для высокоразмерных векторов-->
+<!--    IVFFlat - Inverted File с плоским хранением кластеров, хорош для больших объемов данных-->
+<!--    Без индекса - прямой перебор всех векторов (медленно, но точно)-->
+    <!-- HNSW индекс для cosine similarity -->
+    <changeSet id="007" author="163ty">
+        <sql>
+            CREATE INDEX vector_store_hnsw_index
+            ON public.vector_store
+            USING hnsw (embedding vector_cosine_ops);
+        </sql>
+    </changeSet>
+
+</databaseChangeLog>

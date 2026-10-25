@@ -5,6 +5,7 @@
         xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
         http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.20.xsd">
 
-    <include file="changes/001-init-chat-schema.xml" relativeToChangelogFile="true"/>
+    <include file="changes/db.changelog-init-chat-schema.xml" relativeToChangelogFile="true"/>
+    <include file="changes/db.changelog-rag.xml"  relativeToChangelogFile="true"/>
 
 </databaseChangeLog>
