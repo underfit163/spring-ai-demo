@@ -28,6 +28,7 @@ public class Chat {
     @CreationTimestamp
     private LocalDateTime createdAt;
 
+    @OrderBy(Chat_.CREATED_AT + " ASC")
     @OneToMany(fetch = FetchType.EAGER, mappedBy = "chat", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<ChatEntry> history = new ArrayList<>();
 
