@@ -8,7 +8,6 @@ import ru.t1.springaidemo.model.Chat;
 import ru.t1.springaidemo.model.ChatEntry;
 import ru.t1.springaidemo.repository.ChatRepository;
 
-import java.util.Comparator;
 import java.util.List;
 
 @Builder
@@ -30,10 +29,10 @@ public class PostgresChatMemory implements ChatMemory {
     @Override
     public @NonNull List<Message> get(@NonNull String conversationId) {
         Chat chat = chatRepository.findById(Long.valueOf(conversationId)).orElseThrow();
+        long messagesToSkip = Math.max(0, chat.getHistory().size() - maxMessages);
         return chat.getHistory().stream()
-                .sorted(Comparator.comparing(ChatEntry::getCreatedAt).reversed())
+                .skip(messagesToSkip)
                 .map(ChatEntry::toMessage)
-                .limit(maxMessages)
                 .toList();
     }
 

@@ -15,3 +15,7 @@ spring:
     change-log: classpath:db/changelog/db.changelog-master.xml
   jpa:
     open-in-view: false
+
+logging:
+  level:
+    org.springframework.ai.chat.client.advisor: DEBUG

@@ -38,7 +38,8 @@ public class ChatFacadeImpl implements ChatFacade {
                 .stream()
                 .chatResponse()
                 .subscribe(response -> processToken(response, sseEmitter, answer),
-                        sseEmitter::completeWithError);
+                        sseEmitter::completeWithError,
+                        sseEmitter::complete);
 
         return sseEmitter;
     }
