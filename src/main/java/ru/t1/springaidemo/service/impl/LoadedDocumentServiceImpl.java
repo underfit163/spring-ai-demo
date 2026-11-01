@@ -40,7 +40,9 @@ public class LoadedDocumentServiceImpl implements LoadedDocumentService, Command
                 .forEach(pair -> {
                     Resource resource = pair.getFirst();
                     List<Document> documents = new TextReader(resource).get();
-                    TokenTextSplitter tokenTextSplitter = TokenTextSplitter.builder().withChunkSize(500).build();
+                    TokenTextSplitter tokenTextSplitter = TokenTextSplitter.builder()
+                            .withChunkSize(200) // разбиваем на более мелкие чанки и по ним ищем подходящие для вопроса
+                            .build();
                     List<Document> chunks = tokenTextSplitter.apply(documents);
                     vectorStore.accept(chunks);
 
