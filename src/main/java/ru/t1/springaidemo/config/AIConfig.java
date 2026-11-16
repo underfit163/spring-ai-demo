@@ -5,15 +5,15 @@ import org.springframework.ai.chat.client.ChatClient;
 import org.springframework.ai.chat.client.advisor.MessageChatMemoryAdvisor;
 import org.springframework.ai.chat.client.advisor.SimpleLoggerAdvisor;
 import org.springframework.ai.chat.client.advisor.api.Advisor;
-import org.springframework.ai.chat.client.advisor.vectorstore.QuestionAnswerAdvisor;
 import org.springframework.ai.chat.memory.ChatMemory;
 import org.springframework.ai.chat.model.ChatModel;
 import org.springframework.ai.chat.prompt.PromptTemplate;
 import org.springframework.ai.ollama.api.OllamaChatOptions;
-import org.springframework.ai.vectorstore.SearchRequest;
 import org.springframework.ai.vectorstore.VectorStore;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import ru.t1.springaidemo.advisors.expansion.ExpansionQueryAdvisor;
+import ru.t1.springaidemo.advisors.rag.RagAdvisor;
 import ru.t1.springaidemo.repository.ChatRepository;
 import ru.t1.springaidemo.service.PostgresChatMemory;
 
@@ -25,7 +25,19 @@ public class AIConfig {
     private final VectorStore vectorStore;
     private final ChatModel chatModel;
 
-    private static final PromptTemplate MY_PROMPT_TEMPLATE = new PromptTemplate(
+    private static final PromptTemplate SYSTEM_PROMPT = new PromptTemplate(
+            """
+                    Ты — Евгений Борисов, Java-разработчик и эксперт по Spring. Отвечай от первого лица, кратко и по делу.
+                    
+                    Вопрос может быть о СЛЕДСТВИИ факта из Context.
+                    ВСЕГДА связывай: факт Context → вопрос.
+                    
+                    Нет связи, даже косвенной = "я не говорил об этом в докладах".
+                    Есть связь = отвечай.
+                    """
+    );
+
+/*    private static final PromptTemplate MY_PROMPT_TEMPLATE = new PromptTemplate(
             """
                     {query}
                     
@@ -35,7 +47,7 @@ public class AIConfig {
                     ---------------------
                     
                     Отвечай только на основе контекста выше. Если информации нет в контексте, сообщи, что не можешь ответить."""
-    );
+    );*/
 
     @Bean
     public ChatClient chatClient(ChatClient.Builder builder) {
@@ -43,7 +55,8 @@ public class AIConfig {
                         ExpansionQueryAdvisor.builder(chatModel).order(0).build(),
                         getHistoryAdvisor(1),
                         SimpleLoggerAdvisor.builder().order(2).build(),
-                        getRagAdvisor(3),
+                        /*getRagAdvisor(3),*/
+                        RagAdvisor.builder(vectorStore).order(3).build(),
                         SimpleLoggerAdvisor.builder().order(4).build())
                 .defaultOptions(OllamaChatOptions.builder()
                         .temperature(0.3) // рекомендуемая температура (стабильность и вариативность)
@@ -51,6 +64,7 @@ public class AIConfig {
                         .topK(20) // сколько максимум вариантов токенов взять (корреляция с topP (должна в сумме получится вероятность topP из взятых вариантов))
                         .repeatPenalty(1.1) // нужно ли штрафовать за повторения (дефолт 1 - будет повторяться)
                         .build())
+                .defaultSystem(SYSTEM_PROMPT.render())
                 .build();
     }
 
@@ -65,15 +79,15 @@ public class AIConfig {
                 .build();
     }
 
-    private Advisor getRagAdvisor(int order) {
+/*    private Advisor getRagAdvisor(int order) {
         return QuestionAnswerAdvisor.builder(vectorStore)
                 .promptTemplate(MY_PROMPT_TEMPLATE)
                 .searchRequest(SearchRequest.builder()
-                        .topK(order) // Сколько максимум чанков документа взять из RAG, перед этим идет сортировка чанков по релевантности (по векторной similarity)
+                        .topK(4) // Сколько максимум чанков документа взять из RAG, перед этим идет сортировка чанков по релевантности (по векторной similarity)
                         .similarityThreshold(0.67) // на сколько процентов должен быть похож чанк (документ), аналог topP, обрезает варианты подходящих чанков из предложенных (по умолчанию 0)
                         .build())
-                .order(3)
+                .order(order)
                 .build();
-    }
+    }*/
 
 }
