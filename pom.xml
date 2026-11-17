@@ -16,6 +16,8 @@
     <properties>
         <java.version>25</java.version>
         <spring-ai.version>1.1.2</spring-ai.version>
+        <lingua.version>1.2.2</lingua.version>
+        <lucene-analysis-common.version>10.2.2</lucene-analysis-common.version>
     </properties>
     <dependencies>
         <!--Spring-->
@@ -69,6 +71,18 @@
         <dependency>
             <groupId>org.liquibase</groupId>
             <artifactId>liquibase-core</artifactId>
+        </dependency>
+
+        <!--Rerank-->
+        <dependency>
+            <groupId>com.github.pemistahl</groupId>
+            <artifactId>lingua</artifactId>
+            <version>${lingua.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.lucene</groupId>
+            <artifactId>lucene-analysis-common</artifactId>
+            <version>${lucene-analysis-common.version}</version>
         </dependency>
 
         <!--Other-->
